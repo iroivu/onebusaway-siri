@@ -1,19 +1,19 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>onebusaway-siri</artifactId>
+    <artifactId>onebusaway-siri-ivu</artifactId>
     <groupId>org.onebusaway</groupId>
-    <version>1.0.7-SNAPSHOT</version>
+    <version>1.0.8-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
-  <artifactId>onebusaway-siri-integration-tests</artifactId>
+  <artifactId>onebusaway-siri-integration-tests-ivu</artifactId>
   <name>onebusaway-siri-integration-tests</name>
   <description>Integration tests of combined SIRI libraries.</description>
 
   <dependencies>
     <dependency>
       <groupId>org.onebusaway</groupId>
-      <artifactId>onebusaway-siri-jetty</artifactId>
+      <artifactId>onebusaway-siri-jetty-ivu</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>

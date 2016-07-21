@@ -2,11 +2,11 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>onebusaway-siri</artifactId>
+    <artifactId>onebusaway-siri-ivu</artifactId>
     <groupId>org.onebusaway</groupId>
-    <version>1.0.7-SNAPSHOT</version>
+    <version>1.0.8-SNAPSHOT</version>
   </parent>
-  <artifactId>onebusaway-siri-client-cli</artifactId>
+  <artifactId>onebusaway-siri-client-cli-ivu</artifactId>
 
   <name>onebusaway-siri-client-cli</name>
   <description>Simple SIRI Command Line Interface client</description>
@@ -14,7 +14,7 @@
   <dependencies>
     <dependency>
       <groupId>org.onebusaway</groupId>
-      <artifactId>onebusaway-siri-jetty</artifactId>
+      <artifactId>onebusaway-siri-jetty-ivu</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

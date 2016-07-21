@@ -1,11 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>onebusaway-siri</artifactId>
+        <artifactId>onebusaway-siri-ivu</artifactId>
         <groupId>org.onebusaway</groupId>
-        <version>1.0.7-SNAPSHOT</version>
+        <version>1.0.8-SNAPSHOT</version>
     </parent>
-    <artifactId>onebusaway-siri-repeater-webapp</artifactId>
+    <artifactId>onebusaway-siri-repeater-webapp-ivu</artifactId>
     <packaging>war</packaging>
 
     <name>onebusaway-siri-repeater-webapp</name>
@@ -16,10 +16,10 @@
     </properties>
 
     <dependencies>
-        
+
         <dependency>
             <groupId>org.onebusaway</groupId>
-            <artifactId>onebusaway-siri-repeater</artifactId>
+            <artifactId>onebusaway-siri-repeater-ivu</artifactId>
             <version>${project.version}</version>
         </dependency>
 
