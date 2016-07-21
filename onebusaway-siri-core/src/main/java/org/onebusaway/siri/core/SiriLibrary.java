@@ -43,7 +43,7 @@ import uk.org.siri.siri.RoadSituationElementStructure.ValidityPeriod;
 
 /**
  * SIRI utility functions
- * 
+ *
  * @author bdferris
  */
 public class SiriLibrary {
@@ -68,6 +68,8 @@ public class SiriLibrary {
         return (List<T>) serviceRequest.getVehicleMonitoringRequest();
       case SITUATION_EXCHANGE:
         return (List<T>) serviceRequest.getSituationExchangeRequest();
+      case STOP_MONITORING:
+        return (List<T>) serviceRequest.getStopMonitoringRequest();
       default:
         return new ArrayList<T>();
     }
@@ -82,6 +84,8 @@ public class SiriLibrary {
         return (List<T>) subscriptionRequest.getVehicleMonitoringSubscriptionRequest();
       case SITUATION_EXCHANGE:
         return (List<T>) subscriptionRequest.getSituationExchangeSubscriptionRequest();
+      case STOP_MONITORING:
+        return (List<T>) subscriptionRequest.getStopMonitoringSubscriptionRequest();
       default:
         return new ArrayList<T>();
     }
@@ -96,13 +100,15 @@ public class SiriLibrary {
         return (List<T>) serviceDelivery.getVehicleMonitoringDelivery();
       case SITUATION_EXCHANGE:
         return (List<T>) serviceDelivery.getSituationExchangeDelivery();
+      case STOP_MONITORING:
+        return (List<T>) serviceDelivery.getStopMonitoringDelivery();
       default:
         return new ArrayList<T>();
     }
   }
 
   /****
-   * 
+   *
    ****/
 
   public static <T> List<T> grep(Iterable<T> elements,
@@ -151,13 +157,13 @@ public class SiriLibrary {
   }
 
   /****
-   * 
+   *
    ****/
 
   /**
    * Determine if the specified situation is closed according to its workflow
    * status.
-   * 
+   *
    * @param situation
    * @return true if the situation's workflow status is 'CLOSING' or 'CLOSED'
    */
@@ -172,7 +178,7 @@ public class SiriLibrary {
    * publication windows and validity periods of the situation all ending before
    * the current time. If a situation has no publication window or validity
    * periods, it is considered active.
-   * 
+   *
    * @param situation
    * @param currentTime
    * @return true if the situation has expired before the specified time.
@@ -211,7 +217,7 @@ public class SiriLibrary {
    * publication windows and validity periods of the situation and the current
    * time. If a situation has no publication window or validity periods, it is
    * considered active.
-   * 
+   *
    * @param situation
    * @param currentTime
    * @return true if the situation is active at the specified time
@@ -247,7 +253,7 @@ public class SiriLibrary {
   /**
    * Returns true if the the specified time range is active at the specified
    * time. We do not consider an empty time range to ever be active.
-   * 
+   *
    * @param range
    * @param time
    * @return true if the specified time falls within the specified time range
@@ -271,7 +277,7 @@ public class SiriLibrary {
    * Returns true if the specified time range is active at the specified time or
    * will become active at some point in the future. We do not consider an empty
    * time range to ever be active.
-   * 
+   *
    * @param range
    * @param time
    * @return true if the specified time range is active at the specified time or
