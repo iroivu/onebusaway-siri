@@ -85,7 +85,7 @@ public class IntrospectionVersionConverter implements VersionConverter {
 
   private VersionConverter createConverter(Class<?> sourceType) {
 
-    if (isPrimitiveType(sourceType))
+    if (isPrimitiveType(sourceType) || isPassableType(sourceType))
       return _passThroughConverter;
 
     Class<?> targetType = determineTargetTypeForSourceType(sourceType);
@@ -96,11 +96,19 @@ public class IntrospectionVersionConverter implements VersionConverter {
     return new VersionConverterImpl(targetType, converters);
   }
 
-  private boolean isPrimitiveType(Class<? extends Object> sourceType) {
+
+
+private boolean isPrimitiveType(Class<? extends Object> sourceType) {
     String name = sourceType.getName();
     return sourceType.isPrimitive() || sourceType.isEnum()
         || name.startsWith("java") || name.startsWith("com.sun");
   }
+
+private boolean isPassableType(Class<?> sourceType) {
+	//exclude org.apache.xerces.jaxp.datatype.DurationImpl from conversion, because an exception is thrown otherwise
+	String name = sourceType.getName();
+	return name.startsWith("org.apache.xerces.jaxp.datatype");
+}
 
   private Class<?> determineTargetTypeForSourceType(Class<?> sourceType) {
     Class<?> targetType = _typeMappingStrategy.getTargetTypeForSourceType(sourceType);

@@ -28,10 +28,13 @@ import java.util.TimeZone;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
 
+import org.apache.commons.lang.StringUtils;
 import org.onebusaway.siri.core.exceptions.SiriException;
 import org.onebusaway.siri.core.exceptions.SiriMissingArgumentException;
 import org.onebusaway.siri.core.exceptions.SiriUnknownVersionException;
 import org.onebusaway.siri.core.versioning.ESiriVersion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.org.siri.siri.AbstractServiceRequestStructure;
 import uk.org.siri.siri.AbstractSubscriptionStructure;
@@ -41,6 +44,7 @@ import uk.org.siri.siri.EstimatedTimetableRequestStructure;
 import uk.org.siri.siri.EstimatedTimetableSubscriptionStructure;
 import uk.org.siri.siri.LineRefStructure;
 import uk.org.siri.siri.MessageQualifierStructure;
+import uk.org.siri.siri.MonitoringRefStructure;
 import uk.org.siri.siri.ProductionTimetableRequestStructure;
 import uk.org.siri.siri.ProductionTimetableSubscriptionRequest;
 import uk.org.siri.siri.ServiceRequest;
@@ -60,6 +64,8 @@ import uk.org.siri.siri.VehicleMonitoringSubscriptionStructure;
 import uk.org.siri.siri.VehicleRefStructure;
 
 public class SiriClientRequestFactory {
+
+  private static Logger _log = LoggerFactory.getLogger(SiriClientRequestFactory.class);
 
   public static final String ARG_URL = "Url";
   public static final String ARG_MANAGE_SUBSCRIPTION_URL = "ManageSubscriptionUrl";
@@ -84,6 +90,12 @@ public class SiriClientRequestFactory {
   public static final String ARG_LINE_REF = "LineRef";
   public static final String ARG_DIRECTION_REF = "DirectionRef";
   public static final String ARG_VEHICLE_MONITORING_REF = "VehicleMonitoringRef";
+
+  public static final String ARG_CHANGE_BEFORE_UPDATES = "ChangeBeforeUpdates";
+  public static final String ARG_INCREMENTAL_UPDATES = "IncrementalUpdates";
+  public static final String ARG_PREVIEW_INTERVAL = "PreviewInterval";
+
+  public static final String ARG_MONITORING_REF = "MonitoringRef";
 
   private static final DatatypeFactory _dataTypeFactory = SiriTypeFactory.createDataTypeFactory();
 
@@ -371,10 +383,16 @@ public class SiriClientRequestFactory {
         applyArgsToSituationExchangeRequest(
             (SituationExchangeRequestStructure) moduleServiceRequest, args);
         break;
+      case STOP_MONITORING:
+          applyArgsToStopMonitoringRequest(
+              (StopMonitoringRequestStructure) moduleServiceRequest, args);
+          break;
     }
   }
 
-  private void handleModuleSubscriptionSpecificArguments(
+
+
+private void handleModuleSubscriptionSpecificArguments(
       ESiriModuleType moduleType,
       AbstractSubscriptionStructure moduleSubscription, Map<String, String> args) {
 
@@ -387,17 +405,47 @@ public class SiriClientRequestFactory {
         handleSituationExchangeSubscriptionSpecificArguments(
             (SituationExchangeSubscriptionStructure) moduleSubscription, args);
         break;
+      case STOP_MONITORING:
+          handleStopMonitoringSubscriptionSpecificArguments(
+              (StopMonitoringSubscriptionStructure) moduleSubscription, args);
+          break;
     }
   }
 
-  private void handleVehicleMonitoringSubscriptionSpecificArguments(
+
+private void handleVehicleMonitoringSubscriptionSpecificArguments(
       VehicleMonitoringSubscriptionStructure moduleSubscription,
       Map<String, String> args) {
 
-    VehicleMonitoringRequestStructure vmr = new VehicleMonitoringRequestStructure();
-    moduleSubscription.setVehicleMonitoringRequest(vmr);
+      VehicleMonitoringRequestStructure vmr = new VehicleMonitoringRequestStructure();
+      moduleSubscription.setVehicleMonitoringRequest(vmr);
 
-    applyArgsToVehicleMonitoringRequest(vmr, args);
+      String changeBeforeUpdates = args.get(ARG_CHANGE_BEFORE_UPDATES);
+	  if (changeBeforeUpdates != null) {
+		  if (changeBeforeUpdates.startsWith("PT")) {
+			  moduleSubscription.setChangeBeforeUpdates(_dataTypeFactory.newDuration(changeBeforeUpdates));
+		  } else {
+			  if(StringUtils.isNumeric(changeBeforeUpdates)) {
+				  moduleSubscription.setChangeBeforeUpdates(_dataTypeFactory.newDuration("P" + changeBeforeUpdates + "S"));
+			  } else {
+				  _log.warn("value for " + ARG_CHANGE_BEFORE_UPDATES + " must be either numeric (seconds) "
+				  		+ "or in duration format, but is " + changeBeforeUpdates);
+			  }
+		  }
+	  }
+
+	  String incrementalUpdates = args.get(ARG_INCREMENTAL_UPDATES);
+	  if (incrementalUpdates != null) {
+		  if (incrementalUpdates.toLowerCase().trim().equals("true")) {
+			  moduleSubscription.setIncrementalUpdates(true);
+		  } else if (incrementalUpdates.toLowerCase().trim().equals("false")) {
+			  moduleSubscription.setIncrementalUpdates(false);
+		  } else {
+			  _log.warn("value for " + ARG_INCREMENTAL_UPDATES + " must be either true or false, but is " + incrementalUpdates);
+		  }
+	  }
+
+      applyArgsToVehicleMonitoringRequest(vmr, args);
   }
 
   private void applyArgsToVehicleMonitoringRequest(
@@ -436,6 +484,7 @@ public class SiriClientRequestFactory {
     if (maximumVehiclesValue != null) {
       vmr.setMaximumVehicles(new BigInteger(maximumVehiclesValue));
     }
+
   }
 
   private void handleSituationExchangeSubscriptionSpecificArguments(
@@ -452,6 +501,63 @@ public class SiriClientRequestFactory {
       SituationExchangeRequestStructure request, Map<String, String> args) {
 
   }
+
+  private void handleStopMonitoringSubscriptionSpecificArguments(StopMonitoringSubscriptionStructure moduleSubscription,
+			Map<String, String> args) {
+	  StopMonitoringRequestStructure smr = new StopMonitoringRequestStructure();
+	    moduleSubscription.setStopMonitoringRequest(smr);
+
+	  String changeBeforeUpdates = args.get(ARG_CHANGE_BEFORE_UPDATES);
+	  if (changeBeforeUpdates != null) {
+		  if (changeBeforeUpdates.startsWith("PT")) {
+			  moduleSubscription.setChangeBeforeUpdates(_dataTypeFactory.newDuration(changeBeforeUpdates));
+		  } else {
+			  if(StringUtils.isNumeric(changeBeforeUpdates)) {
+				  moduleSubscription.setChangeBeforeUpdates(_dataTypeFactory.newDuration("P" + changeBeforeUpdates + "S"));
+			  } else {
+				  _log.warn("value for " + ARG_CHANGE_BEFORE_UPDATES + " must be either numeric (seconds) "
+				  		+ "or in duration format, but is " + changeBeforeUpdates);
+			  }
+		  }
+	  }
+
+	  String incrementalUpdates = args.get(ARG_INCREMENTAL_UPDATES);
+	  if (incrementalUpdates != null) {
+		  if (incrementalUpdates.toLowerCase().trim().equals("true")) {
+			  moduleSubscription.setIncrementalUpdates(true);
+		  } else if (incrementalUpdates.toLowerCase().trim().equals("false")) {
+			  moduleSubscription.setIncrementalUpdates(false);
+		  } else {
+			  _log.warn("value for " + ARG_INCREMENTAL_UPDATES + " must be either true or false, but is " + incrementalUpdates);
+		  }
+	  }
+
+	    applyArgsToStopMonitoringRequest(smr, args);
+	}
+
+private void applyArgsToStopMonitoringRequest(StopMonitoringRequestStructure smr, Map<String, String> args) {
+
+	String monitoringRefValue = args.get(ARG_MONITORING_REF);
+    if (monitoringRefValue != null) {
+      MonitoringRefStructure monitoringRef = new MonitoringRefStructure();
+      monitoringRef.setValue(monitoringRefValue);
+      smr.setMonitoringRef(monitoringRef);
+    }
+
+	String previewInterval = args.get(ARG_PREVIEW_INTERVAL);
+	if (previewInterval != null) {
+		  if (previewInterval.startsWith("PT")) {
+			  smr.setPreviewInterval(_dataTypeFactory.newDuration(previewInterval));
+		  } else {
+			  if(StringUtils.isNumeric(previewInterval)) {
+				  smr.setPreviewInterval(_dataTypeFactory.newDuration("P" + previewInterval + "M"));
+			  } else {
+				  _log.warn("value for " + ARG_PREVIEW_INTERVAL + " must be either numeric (minutes) "
+				  		+ "or in duration format, but is " + previewInterval);
+			  }
+		  }
+	}
+}
 
   private static Date getIso8601StringAsTime(String value, TimeZone timeZone)
       throws ParseException {
